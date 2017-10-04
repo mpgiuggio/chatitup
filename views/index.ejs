@@ -1,0 +1,156 @@
+<html>
+	<head>
+		<title>Chat it up! </title>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<link href="/css/bootstrap.min.css" rel="stylesheet">
+		<link href="/css/main.css" rel="stylesheet">
+		<link rel="icon" href="/images/chat_logo.png" type="image/x-icon"/>
+	</head>
+
+	<body>
+
+		<div class="container">
+			<div class="row">
+				<div class="" id="screen_name_wrap">
+					<img class="img-circle src="" />
+					<h3>Welcome, enter a screen name to join!</h3>
+					<p id="screen_name_error"></p>
+
+					<div class="form-group">
+						<form id="set_screen_name" role="form">
+							<input type="text" autofocus required placeholder="Your screen-name" id="screen_name" value=""/>
+							<input class="btn btn-danger" type="submit" id="submit_screen_name" value="Join">
+						</form>
+					</div>
+				</div>
+			</div>
+		</div>
+
+
+		<div id="chat_window">
+			<h1 class="jumbotron" id="big_header">Welcome, now chat it up!!</h1>
+			<div class="container" id="current_users">
+				<div class="row">
+					<div class="col-md-6 col-sm-offset-1 panel panel-primary">
+						<div class="panel-body">
+							<div id="contentWrap" >
+								<div id="chatWrap">
+									<div id="chat"></div>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<div class="col-md-4 col-sm-offset-1 panel panel-default">
+						<div class="panel-heading">Currently Online</div>
+						<div class="panel-body">
+							<div  id="users"></div>
+						</div>
+						<h4 id="invite">
+							Invite your friends by sharing the <a id="current_chat_link" target="_blank" href="">link</a>
+						</h4>
+					</div>
+					
+					
+				</div>
+			</div>
+		
+		<div class="container">
+
+			<div class="row">
+				<div class="col-md-6 col-md-offset-1">
+					<form id="message-box">
+						<div class="form-group">
+							<textarea required autofocus rows="3" id="message" placeholder="Write your message and press enter.."></textarea>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+
+			<div class="row">
+				<h1 align="center"><code>@Sammy  Hello</code> to say Hello to Sammy privately</h1>
+			</div>
+		</div>
+
+		<script src="/js/jquery-1.11.3.js"></script>
+		<script src="/socket.io/socket.io.js"></script>
+		<script src="/js/bootstrap.min.js"></script>
+		<script>
+			$(function() {
+
+				$("#current_chat_link").attr({"href": window.location.toString()});
+				var socket = io.connect();
+				var title = "anonymous";
+
+				$("#set_screen_name").submit(function(e) {
+					e.preventDefault();
+					title = $("#screen_name").val();
+
+					socket.emit("new user", title, function(data) {
+						if (data) {
+							$("#screen_name_wrap").hide();
+							document.title = title;
+							$("#chat_window").show();
+						} else {
+							$("#screen_name_error").html("Sorry that screen-name is currently being used. Please choose a new screen-name.")
+						}
+					});
+					$("#screen_name").val("");
+				});
+
+				socket.on("screen_names", function(data) {
+					var _html = "<ul>";
+					for (var k = 0; k < data.length; k++) {
+						_html += "<li><span>" + data[k] + "</span></li>";
+					}
+					_html += "</ul>";
+
+					$("#users").html(_html);
+
+				});
+
+				$("#message").keydown(function(e) {
+					if (e.keyCode == 13) {
+						e.preventDefault();
+						$("#message-box").submit();
+					}
+				});
+
+				$("#message-box").submit(function(e) {
+					e.preventDefault();
+					socket.emit("send message", $("#message").val(), function(data) {
+						$("#chat_list").append("<p class='message_post'>" + data + "</p>");
+					});
+
+					$("#message").val("");
+				});
+
+				socket.on("new message", function(data) {
+					if(data.user === title) {
+						$("#chat").append("<p class='msg'><b>" + data.user +" : </b>" + data.message + "</p>");
+         			} else {
+           				$("#chat").append("<p class='msg'><b>" + data.user +" : </b>" + data.message + "</p>");
+         			}
+         			scrollCorrect();
+				});
+
+				socket.on("whisper", function(data) {
+					$("#chat").append("<p class='whisper'><b>" + data.user + " : </b>" + data.message + "</p>");
+				});
+
+				socket.on("private", function(data) {
+					$("#chat").append("<p class='whisper'><b>" + data.user + " : </b>" + data.message + "</p>");
+				});
+
+
+				function scrollCorrect(){
+		             $("#chatWrap").scrollTop($("#chat").outerHeight());
+		        }
+
+			});
+
+		</script>
+	</body>
+</html>

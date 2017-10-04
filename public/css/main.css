@@ -1,0 +1,47 @@
+#chat_window {
+	margin-top: 0px;
+}
+
+#chat {
+	min-height: 300px;
+}
+
+#users {
+	min-height: 225px;
+}
+
+textarea {
+	border-radius: 5px;
+	padding: 20px;
+	box-sizing: border-box;
+	width: 100%;
+}
+
+.panel-heading {
+	margin: 0 -15px;
+}
+
+#invite {
+	text-align: center;
+	font-size: 14px;
+}
+
+#screen_name_wrap {
+	margin-top: 40vh;
+}
+
+#chat_window {
+	display: none;
+}
+
+#screen_name{
+    line-height: 35px;
+    padding: 0 20px;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+}
+
+#big_header {
+	text-align: center;
+	margin-top: 0;
+}
